@@ -1,27 +1,20 @@
 import { useEffect } from 'react';
-import { Check } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
 interface Props {
   label: string;
-  accent: string;
   value: number | null;
   onChange: (value: number) => void;
-  leftLabel?: string;
-  rightLabel?: string;
+  onAdvance: () => void;
   enableKeyboard?: boolean;
 }
 
 const POINTS = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+const ACCENT = '#10b981';
 
-export function RatingScale({
-  label,
-  accent,
-  value,
-  onChange,
-  leftLabel = 'Not at all',
-  rightLabel = 'Extremely',
-  enableKeyboard = false,
-}: Props) {
+export function RatingScale({ label, value, onChange, onAdvance, enableKeyboard = false }: Props) {
+  const selected = value !== null;
+
   useEffect(() => {
     if (!enableKeyboard) return;
     const handler = (e: KeyboardEvent) => {
@@ -36,29 +29,52 @@ export function RatingScale({
     return () => window.removeEventListener('keydown', handler);
   }, [enableKeyboard, onChange]);
 
-  const selected = value !== null;
-
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-6">
-      <div className="mb-4 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className="text-base font-semibold text-gray-900">{label}</span>
-          {selected && (
-            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 text-white">
-              <Check className="h-3.5 w-3.5" strokeWidth={3} aria-label="Rated" />
-            </span>
-          )}
-        </div>
+    <div>
+      <div className="mb-3 flex items-center justify-between gap-3">
         <span
-          className="flex h-9 min-w-9 items-center justify-center rounded-full px-2 text-base font-bold tabular-nums"
+          className="text-lg font-semibold tracking-tight transition-colors"
+          style={{ color: selected ? ACCENT : '#e5e7eb' }}
+        >
+          {label}
+        </span>
+        <button
+          type="button"
+          onClick={onAdvance}
+          disabled={!selected}
+          aria-label="Advance"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-all disabled:cursor-not-allowed"
           style={
             selected
-              ? { backgroundColor: accent, color: '#ffffff' }
-              : { backgroundColor: '#f3f4f6', color: '#9ca3af' }
+              ? { backgroundColor: ACCENT, color: '#052e16' }
+              : { backgroundColor: '#1f2937', color: '#4b5563' }
           }
         >
-          {selected ? value : '–'}
-        </span>
+          <ArrowRight size={20} strokeWidth={2.5} />
+        </button>
+      </div>
+
+      <div className="grid grid-cols-9 gap-1.5 sm:gap-2">
+        {POINTS.map((point) => {
+          const active = point === value;
+          return (
+            <button
+              key={point}
+              type="button"
+              onClick={() => onChange(point)}
+              className="flex aspect-square items-center justify-center rounded-xl text-lg font-bold tabular-nums transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+              style={
+                active
+                  ? { backgroundColor: ACCENT, color: '#052e16' }
+                  : { backgroundColor: '#18181b', color: '#d4d4d8' }
+              }
+              aria-label={`Set ${label} to ${point}`}
+              aria-pressed={active}
+            >
+              {point}
+            </button>
+          );
+        })}
       </div>
 
       <input
@@ -70,36 +86,13 @@ export function RatingScale({
         data-selected={selected}
         onChange={(e) => onChange(Number.parseInt(e.target.value, 10))}
         aria-label={label}
-        style={{ accentColor: selected ? accent : '#d1d5db' }}
-        className="rating-slider block h-2 w-full cursor-pointer appearance-none rounded-full bg-gray-200"
+        style={{ accentColor: selected ? ACCENT : '#3f3f46' }}
+        className="rating-slider mt-3 block h-1.5 w-full cursor-pointer appearance-none rounded-full bg-zinc-800"
       />
 
-      <div className="mt-4 grid grid-cols-9 gap-1.5 sm:gap-2">
-        {POINTS.map((point) => {
-          const active = point === value;
-          return (
-            <button
-              key={point}
-              type="button"
-              onClick={() => onChange(point)}
-              className="flex aspect-square items-center justify-center rounded-lg border text-sm font-bold tabular-nums transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 sm:text-base"
-              style={
-                active
-                  ? { backgroundColor: accent, borderColor: accent, color: '#ffffff' }
-                  : { backgroundColor: '#ffffff', borderColor: '#e5e7eb', color: '#4b5563' }
-              }
-              aria-label={`Set ${label} to ${point}`}
-              aria-pressed={active}
-            >
-              {point}
-            </button>
-          );
-        })}
-      </div>
-
-      <div className="mt-2.5 flex justify-between text-[11px] font-medium uppercase tracking-wide text-gray-400">
-        <span>{leftLabel}</span>
-        <span>{rightLabel}</span>
+      <div className="mt-2 flex justify-between text-[11px] font-medium uppercase tracking-wide text-zinc-500">
+        <span>Not at all</span>
+        <span>Extremely</span>
       </div>
     </div>
   );
