@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ChevronRight } from 'lucide-react';
 import { RatingScale } from './RatingScale';
 
@@ -8,31 +8,19 @@ interface Rating {
   craving: number;
 }
 
-interface ImageRating extends Rating {
+interface ImageRatingResult extends Rating {
   imageUrl: string;
 }
 
 const IMAGES = [
-  'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=800&q=80',
-  'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800&q=80',
-  'https://images.unsplash.com/photo-1426604966848-d7adac402bff?w=800&q=80',
-  'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&q=80',
-  'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&q=80',
-  'https://images.unsplash.com/photo-1518173946687-a4c8892bbd9f?w=800&q=80',
-  'https://images.unsplash.com/photo-1475924156734-496f6cac6ec1?w=800&q=80',
-  'https://images.unsplash.com/photo-1431794062232-2a99a5431c6c?w=800&q=80',
-  'https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?w=800&q=80',
-  'https://images.unsplash.com/photo-1505765050516-f72dcac9c60e?w=800&q=80',
-  'https://images.unsplash.com/photo-1504198322253-cfa87a0ff25f?w=800&q=80',
-  'https://images.unsplash.com/photo-1546514355-7fdc90ccbd03?w=800&q=80',
-  'https://images.unsplash.com/photo-1508459855340-fb63ac591728?w=800&q=80',
-  'https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=800&q=80',
-  'https://images.unsplash.com/photo-1418065460487-3e41a6c84dc5?w=800&q=80',
-  'https://images.unsplash.com/photo-1509515837298-2c67a3933321?w=800&q=80',
-  'https://images.unsplash.com/photo-1444464666168-49d633b86797?w=800&q=80',
-  'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=800&q=80',
-  'https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?w=800&q=80',
-  'https://images.unsplash.com/photo-1472396961693-142e6e269027?w=800&q=80',
+  '/images/cue-1.png',
+  '/images/cue-2.png',
+  '/images/cue-3.png',
+  '/images/cue-4.png',
+  '/images/cue-5.png',
+  '/images/cue-6.png',
+  '/images/cue-7.png',
+  '/images/cue-8.png',
 ];
 
 const SCALES = [
@@ -41,88 +29,122 @@ const SCALES = [
   { key: 'craving' as const, label: 'Craving', accent: '#7c3aed' },
 ];
 
+type CurrentRatings = {
+  arousal: number | null;
+  valence: number | null;
+  craving: number | null;
+};
+
+const EMPTY: CurrentRatings = { arousal: null, valence: null, craving: null };
+
 interface Props {
-  onComplete: (ratings: ImageRating[]) => void;
+  onComplete: (ratings: ImageRatingResult[]) => void;
 }
 
 export function ImageRating({ onComplete }: Props) {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [ratings, setRatings] = useState<Rating>({
-    arousal: 5,
-    valence: 5,
-    craving: 5,
-  });
-  const [allRatings, setAllRatings] = useState<ImageRating[]>([]);
+  const [imageIndex, setImageIndex] = useState(0);
+  const [scaleIndex, setScaleIndex] = useState(0);
+  const [current, setCurrent] = useState<CurrentRatings>(EMPTY);
+  const [allRatings, setAllRatings] = useState<ImageRatingResult[]>([]);
 
-  const handleRatingChange = (type: keyof Rating, value: number) => {
-    setRatings((prev) => ({ ...prev, [type]: value }));
+  const scale = SCALES[scaleIndex];
+  const currentValue = current[scale.key];
+  const hasValue = currentValue !== null;
+
+  const handleChange = (value: number) => {
+    setCurrent((prev) => ({ ...prev, [scale.key]: value }));
   };
 
   const handleNext = () => {
-    const newRating = { ...ratings, imageUrl: IMAGES[currentIndex] };
-    const updatedRatings = [...allRatings, newRating];
+    if (currentValue === null) return;
 
-    if (currentIndex < IMAGES.length - 1) {
-      setCurrentIndex((prev) => prev + 1);
-      setRatings({ arousal: 5, valence: 5, craving: 5 });
-      setAllRatings(updatedRatings);
+    if (scaleIndex < SCALES.length - 1) {
+      setScaleIndex((prev) => prev + 1);
+      return;
+    }
+
+    const result: ImageRatingResult = {
+      imageUrl: IMAGES[imageIndex],
+      arousal: current.arousal!,
+      valence: current.valence!,
+      craving: current.craving!,
+    };
+    const updated = [...allRatings, result];
+
+    if (imageIndex < IMAGES.length - 1) {
+      setImageIndex((prev) => prev + 1);
+      setScaleIndex(0);
+      setCurrent(EMPTY);
+      setAllRatings(updated);
     } else {
-      onComplete(updatedRatings);
+      onComplete(updated);
     }
   };
 
-  const isLast = currentIndex === IMAGES.length - 1;
-  const progress = ((currentIndex + 1) / IMAGES.length) * 100;
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Enter' && hasValue) handleNext();
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  });
+
+  const isLastImage = imageIndex === IMAGES.length - 1;
+  const isLastScale = scaleIndex === SCALES.length - 1;
+  const overallProgress =
+    ((imageIndex * SCALES.length + scaleIndex + 1) / (IMAGES.length * SCALES.length)) * 100;
 
   return (
-    <div className="mx-auto max-w-4xl">
-      <div className="mb-6">
-        <div className="mb-2 flex items-end justify-between">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-wide text-indigo-600">Part 1</p>
-            <h2 className="text-2xl font-bold text-gray-900">Image Ratings</h2>
-          </div>
-          <span className="text-sm font-medium text-gray-500">
-            {currentIndex + 1} / {IMAGES.length}
+    <div className="mx-auto flex max-w-xl flex-col">
+      <div className="mb-4">
+        <div className="mb-2 flex items-center justify-between text-xs font-medium text-gray-500">
+          <span className="font-semibold uppercase tracking-wide text-indigo-600">Part 1</span>
+          <span className="tabular-nums">
+            Image {imageIndex + 1} / {IMAGES.length}
           </span>
         </div>
         <div className="h-1.5 w-full overflow-hidden rounded-full bg-gray-200">
           <div
             className="h-full rounded-full bg-indigo-600 transition-all duration-300"
-            style={{ width: `${progress}%` }}
+            style={{ width: `${overallProgress}%` }}
           />
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-        <div className="aspect-video w-full overflow-hidden bg-gray-100">
+      <div className="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm">
+        <div className="aspect-square w-full overflow-hidden bg-gray-100 sm:aspect-[4/3]">
           <img
-            src={IMAGES[currentIndex] || '/placeholder.svg'}
-            alt={`Study image ${currentIndex + 1}`}
+            src={IMAGES[imageIndex] || '/placeholder.svg'}
+            alt={`Study image ${imageIndex + 1}`}
             className="h-full w-full object-cover"
           />
         </div>
 
-        <div className="space-y-3 p-5 sm:p-6">
-          {SCALES.map((scale) => (
-            <RatingScale
-              key={scale.key}
-              label={scale.label}
-              accent={scale.accent}
-              value={ratings[scale.key]}
-              onChange={(value) => handleRatingChange(scale.key, value)}
-            />
-          ))}
-
-          <div className="flex justify-end pt-2">
-            <button
-              onClick={handleNext}
-              className="flex items-center gap-2 rounded-lg bg-indigo-600 px-6 py-2.5 font-semibold text-white transition-colors hover:bg-indigo-700"
-            >
-              {isLast ? 'Continue to Part 2' : 'Next Image'}
-              <ChevronRight size={20} />
-            </button>
+        <div className="p-4 sm:p-5">
+          <div className="mb-3 flex items-center justify-between">
+            <span className="text-xs font-medium text-gray-400">
+              Rating {scaleIndex + 1} of {SCALES.length}
+            </span>
+            <span className="text-xs text-gray-400">Tap a number, the slider, or press 1–9</span>
           </div>
+
+          <RatingScale
+            key={`${imageIndex}-${scale.key}`}
+            label={scale.label}
+            accent={scale.accent}
+            value={currentValue}
+            onChange={handleChange}
+            enableKeyboard
+          />
+
+          <button
+            onClick={handleNext}
+            disabled={!hasValue}
+            className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-400"
+          >
+            {isLastImage && isLastScale ? 'Continue to Part 2' : isLastScale ? 'Next Image' : 'Next'}
+            <ChevronRight size={20} />
+          </button>
         </div>
       </div>
     </div>
