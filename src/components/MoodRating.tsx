@@ -78,11 +78,11 @@ export function MoodRating({ onComplete }: Props) {
       </div>
 
       <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6">
-        <p className="mb-5 text-sm text-gray-500">
+        <p className="mb-5 rounded-lg bg-gray-50 px-4 py-3 text-sm text-gray-600">
           Indicate to what extent you feel this way right now, at the present moment.
         </p>
 
-        <div className="space-y-4">
+        <div className="space-y-3">
           {currentWords.map(({ word, type }) => (
             <RatingScale
               key={word}

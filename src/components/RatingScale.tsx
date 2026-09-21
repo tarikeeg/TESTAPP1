@@ -18,13 +18,11 @@ export function RatingScale({
   rightLabel = 'Extremely',
 }: Props) {
   return (
-    <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 sm:p-5">
-      <div className="mb-4 flex items-center justify-between">
-        <span className="text-base font-semibold" style={{ color: accent }}>
-          {label}
-        </span>
+    <div className="rounded-xl border border-gray-200 bg-white p-4 sm:p-5">
+      <div className="mb-3 flex items-center justify-between">
+        <span className="text-sm font-semibold text-gray-900">{label}</span>
         <span
-          className="flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold text-white"
+          className="flex h-7 w-7 items-center justify-center rounded-full text-sm font-bold text-white tabular-nums"
           style={{ backgroundColor: accent }}
         >
           {value}
@@ -40,10 +38,10 @@ export function RatingScale({
         onChange={(e) => onChange(parseInt(e.target.value, 10))}
         aria-label={label}
         style={{ accentColor: accent }}
-        className="h-2 w-full cursor-pointer appearance-none rounded-full bg-gray-200"
+        className="block h-2 w-full cursor-pointer appearance-none rounded-full bg-gray-100"
       />
 
-      <div className="mt-3 flex w-full">
+      <div className="mt-2.5 flex w-full justify-between">
         {POINTS.map((point) => {
           const active = point === value;
           return (
@@ -51,25 +49,17 @@ export function RatingScale({
               key={point}
               type="button"
               onClick={() => onChange(point)}
-              className="flex flex-1 flex-col items-center gap-1.5 focus:outline-none"
+              className="flex w-6 items-center justify-center rounded-md py-0.5 text-xs font-semibold tabular-nums transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1"
+              style={{ color: active ? accent : '#9ca3af' }}
               aria-label={`Set ${label} to ${point}`}
             >
-              <span
-                className="h-2.5 w-px"
-                style={{ backgroundColor: active ? accent : '#d1d5db' }}
-              />
-              <span
-                className="text-xs font-semibold tabular-nums transition-colors"
-                style={{ color: active ? accent : '#9ca3af' }}
-              >
-                {point}
-              </span>
+              {point}
             </button>
           );
         })}
       </div>
 
-      <div className="mt-2 flex justify-between text-xs font-medium text-gray-500">
+      <div className="mt-1 flex justify-between text-[11px] font-medium uppercase tracking-wide text-gray-400">
         <span>{leftLabel}</span>
         <span>{rightLabel}</span>
       </div>

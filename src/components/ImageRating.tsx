@@ -103,7 +103,7 @@ export function ImageRating({ onComplete }: Props) {
           />
         </div>
 
-        <div className="space-y-4 p-5 sm:p-6">
+        <div className="space-y-3 p-5 sm:p-6">
           {SCALES.map((scale) => (
             <RatingScale
               key={scale.key}
