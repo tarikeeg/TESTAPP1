@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Check, Loader2 } from 'lucide-react';
 import emailjs from '@emailjs/browser';
 import { UserData } from '../App';
@@ -88,34 +88,32 @@ ${moodRatingsCSV}
   }, []);
 
   return (
-    <div className="max-w-md mx-auto text-center">
-      <div className="bg-gray-900 rounded-lg shadow-xl p-8">
-        <h2 className="text-2xl mb-6">Study Complete</h2>
-        
+    <div className="mx-auto max-w-md text-center">
+      <div className="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
+        <h2 className="mb-6 text-2xl font-bold text-gray-900">Study Complete</h2>
+
         {sending ? (
-          <div className="flex items-center justify-center gap-3 text-blue-400">
-            <Loader2 className="w-6 h-6 animate-spin" />
-            <span>Sending results...</span>
+          <div className="flex items-center justify-center gap-3 text-indigo-600">
+            <Loader2 className="h-6 w-6 animate-spin" />
+            <span className="font-medium">Sending results...</span>
           </div>
         ) : sent ? (
           <div className="space-y-4">
-            <div className="flex items-center justify-center gap-3 text-green-400">
-              <Check className="w-6 h-6" />
-              <span>Results sent successfully!</span>
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50">
+              <Check className="h-6 w-6 text-emerald-600" />
             </div>
-            <p className="text-gray-300">
+            <p className="font-semibold text-gray-900">Results sent successfully!</p>
+            <p className="text-sm text-gray-500">
               A copy of your results has been sent to:
               <br />
-              <strong className="text-blue-400">{userData.email}</strong>
+              <strong className="text-indigo-600">{userData.email}</strong>
             </p>
           </div>
         ) : (
-          <div className="text-red-400">
-            {error}
-          </div>
+          <div className="rounded-lg bg-rose-50 p-4 text-sm font-medium text-rose-600">{error}</div>
         )}
 
-        <p className="mt-8 text-gray-400">
+        <p className="mt-8 text-sm text-gray-400">
           Thank you for participating in our study.
           <br />
           You may now close this window.

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Brain, ChevronRight, Mail } from 'lucide-react';
+import { useState } from 'react';
+import { Brain, Mail } from 'lucide-react';
 import { UserForm } from './components/UserForm';
 import { ImageRating } from './components/ImageRating';
 import { MoodRating } from './components/MoodRating';
@@ -39,21 +39,21 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white font-['Arial'] font-bold">
-      <header className="fixed top-0 left-0 right-0 bg-black/50 backdrop-blur-sm p-4 flex items-center justify-between z-50">
+    <div className="min-h-screen bg-gray-50 text-gray-900">
+      <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between border-b border-gray-200 bg-white/90 px-6 py-4 backdrop-blur">
         <div className="flex items-center gap-2">
-          <Brain className="w-8 h-8 text-blue-400" />
-          <span className="text-xl font-['Consolas'] tracking-widest bg-gradient-to-r from-blue-400 to-purple-400 text-transparent bg-clip-text">MAPLAB</span>
+          <Brain className="h-7 w-7 text-indigo-600" />
+          <span className="text-lg font-bold tracking-[0.2em] text-gray-900">MAPLAB</span>
         </div>
         {userData && (
-          <div className="flex items-center gap-2 text-sm">
-            <Mail className="w-4 h-4" />
+          <div className="flex items-center gap-2 text-sm font-medium text-gray-500">
+            <Mail className="h-4 w-4" />
             <span>{userData.email}</span>
           </div>
         )}
       </header>
 
-      <main className="container mx-auto px-4 pt-20 pb-8">
+      <main className="mx-auto w-full max-w-5xl px-4 pb-16 pt-24 sm:px-6">
         {stage === 'splash' && <SplashScreen onStart={handleStart} />}
         {stage === 'user-form' && <UserForm onSubmit={handleUserSubmit} />}
         {stage === 'image-rating' && <ImageRating onComplete={handleImageRatingsComplete} />}

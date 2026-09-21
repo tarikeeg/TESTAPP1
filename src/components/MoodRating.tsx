@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { ChevronRight } from 'lucide-react';
+import { RatingScale } from './RatingScale';
 
 const PANAS_WORDS = [
   { word: 'Active', type: 'positive' },
@@ -21,8 +22,11 @@ const PANAS_WORDS = [
   { word: 'Proud', type: 'positive' },
   { word: 'Scared', type: 'negative' },
   { word: 'Strong', type: 'positive' },
-  { word: 'Upset', type: 'negative' }
+  { word: 'Upset', type: 'negative' },
 ];
+
+const POSITIVE_ACCENT = '#4f46e5';
+const NEGATIVE_ACCENT = '#e11d48';
 
 interface Props {
   onComplete: (ratings: Record<string, number>) => void;
@@ -41,71 +45,59 @@ export function MoodRating({ onComplete }: Props) {
   const currentWords = PANAS_WORDS.slice(page * 10, (page + 1) * 10);
 
   const handleRatingChange = (word: string, value: number) => {
-    setRatings(prev => ({
-      ...prev,
-      [word.toLowerCase()]: value
-    }));
+    setRatings((prev) => ({ ...prev, [word.toLowerCase()]: value }));
   };
 
   const handleNext = () => {
     if (page === 0) {
       setPage(1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
       onComplete(ratings);
     }
   };
 
+  const progress = ((page + 1) / 2) * 100;
+
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="bg-gray-900 rounded-lg shadow-xl p-6">
-        <h2 className="text-2xl mb-8">Part 2: Current Mood Rating (Page {page + 1}/2)</h2>
-        
-        <div className="space-y-6">
+    <div className="mx-auto max-w-4xl">
+      <div className="mb-6">
+        <div className="mb-2 flex items-end justify-between">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-wide text-indigo-600">Part 2</p>
+            <h2 className="text-2xl font-bold text-gray-900">Current Mood Rating</h2>
+          </div>
+          <span className="text-sm font-medium text-gray-500">Page {page + 1} / 2</span>
+        </div>
+        <div className="h-1.5 w-full overflow-hidden rounded-full bg-gray-200">
+          <div
+            className="h-full rounded-full bg-indigo-600 transition-all duration-300"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+      </div>
+
+      <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6">
+        <p className="mb-5 text-sm text-gray-500">
+          Indicate to what extent you feel this way right now, at the present moment.
+        </p>
+
+        <div className="space-y-4">
           {currentWords.map(({ word, type }) => (
-            <div key={word} className="space-y-2">
-              <label className={`block text-lg ${type === 'positive' ? 'text-blue-400' : 'text-red-400'}`}>
-                {word}
-              </label>
-              <div className="flex items-center gap-4">
-                <span className="text-sm w-24">Not at all</span>
-                <div className="flex-1 relative">
-                  <input
-                    type="range"
-                    min="1"
-                    max="9"
-                    value={ratings[word.toLowerCase()]}
-                    onChange={(e) => handleRatingChange(word, parseInt(e.target.value))}
-                    className={`w-full h-3 rounded-lg appearance-none cursor-pointer
-                      bg-gray-700 
-                      [&::-webkit-slider-thumb]:appearance-none 
-                      [&::-webkit-slider-thumb]:w-6 
-                      [&::-webkit-slider-thumb]:h-6 
-                      [&::-webkit-slider-thumb]:rounded-full 
-                      [&::-webkit-slider-thumb]:cursor-pointer
-                      [&::-webkit-slider-thumb]:${type === 'positive' ? 'bg-blue-400' : 'bg-red-400'}
-                      [&::-webkit-slider-thumb]:hover:${type === 'positive' ? 'bg-blue-600' : 'bg-red-600'}
-                      [&::-webkit-slider-thumb]:transition-colors`}
-                  />
-                  <div 
-                    className={`absolute top-0 left-0 h-3 rounded-l-lg ${
-                      type === 'positive' ? 'bg-blue-400' : 'bg-red-400'
-                    }`}
-                    style={{ width: `${((ratings[word.toLowerCase()] - 1) / 8) * 100}%` }}
-                  />
-                </div>
-                <span className="text-sm w-24 text-right">Extremely</span>
-                <span className="w-8 text-center font-medium">
-                  {ratings[word.toLowerCase()]}
-                </span>
-              </div>
-            </div>
+            <RatingScale
+              key={word}
+              label={word}
+              accent={type === 'positive' ? POSITIVE_ACCENT : NEGATIVE_ACCENT}
+              value={ratings[word.toLowerCase()]}
+              onChange={(value) => handleRatingChange(word, value)}
+            />
           ))}
         </div>
 
-        <div className="mt-8 flex justify-end">
+        <div className="mt-6 flex justify-end">
           <button
             onClick={handleNext}
-            className="bg-blue-500 text-white px-6 py-2 rounded-lg flex items-center gap-2 hover:bg-blue-600 transition-colors"
+            className="flex items-center gap-2 rounded-lg bg-indigo-600 px-6 py-2.5 font-semibold text-white transition-colors hover:bg-indigo-700"
           >
             {page === 0 ? 'Next Page' : 'Complete Study'}
             <ChevronRight size={20} />
